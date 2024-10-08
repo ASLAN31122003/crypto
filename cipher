@@ -1,0 +1,181 @@
+XOR OPERATION 
+#include<stdio.h> 
+void main() 
+{ 
+  char input[]="hello world"; 
+  char result[sizeof(input)]; 
+  for(int i=0;i<sizeof(input)-1;i++) 
+   result[i]=input[i]^0; 
+  printf("Original string:%s\n", input); 
+  printf("XORed string:%s\n",result); 
+}
+
+
+
+
+XOR A STRING WITH 127 
+#include<stdio.h> 
+void main() 
+{ 
+ char input[]="hello world"; 
+ char xorresult[sizeof(input)]; 
+ char andresult[sizeof(input)]; 
+ for(int i=0;i<sizeof(input)-1;i++) 
+  { 
+    andresult[i]=input[i]&127; 
+    xorresult[i]=input[i]^127; 
+  } 
+ printf("Original string:%s\n",input); 
+ printf("ANDed string:%s\n", andresult); 
+ printf("XORed string:%s\n",xorresult); 
+}
+
+
+
+
+CEASER CIPHER 
+#include<stdio.h> 
+void main() 
+{
+  char input[]="helloworld"; 
+  int i,len=sizeof(input)-1; 
+  char enc[len],dec[len]; 
+  for(i=0;i<len;i++) 
+   { 
+     enc[i]=(((input[i]-'a')+3)%26)+'a'; 
+     dec[i]=(((enc[i]-'a')-3)%26)+'a'; 
+   } 
+printf("Original string:%s\n", input); 
+printf("Encrypted string=%s\t\n",enc); 
+printf("Decrypted string=%s\t\n",dec); 
+}
+
+
+
+
+
+SUBSTITUTION CIPHER 
+#include<stdio.h> 
+void main() 
+{ 
+ char input[]="hello"; 
+ int i,j,len=sizeof(input)-1,index; 
+ char t[]="qwertyuioplkjhgfdsazxcvbnm"; 
+ char enc[len], dec[len]; 
+ for(i=0;i<len;i++) 
+  { 
+   index=input[i]-'a'; 
+   enc[i]=t[index]; 
+  } 
+ printf("Original string:%s\n", input); 
+ printf("Encrypted string=%s\t\n",enc); 
+ for(i=0;i<len;i++) 
+  { 
+   for(j=0;j<26;j++) 
+   {
+    if(enc[i]==t[j]) 
+    dec[i]=j+'a'; 
+   } 
+  } 
+ printf("Decrypted string=%s\t\n",dec);
+} 
+
+
+
+
+HILL CIPHER 
+#include<stdio.h> 
+void main() 
+{ 
+ int i,j; 
+ int key[2][2]={{2,3},{3,6}}; 
+ char a[]="attack"; 
+ int len=sizeof(a)-1; 
+ char e[len], num[len],d[len]; 
+ for(i=0;i<len;i++) 
+  { 
+      num[i]=a[i]-'a'; 
+  } 
+ for(i=0;i<=len;i=i+2) 
+  { 
+   e[i]=((num[i]*key[0][0])%26+(num[i+1]*key[1][0])%26)%26; 
+   e[i+1]=((num[i]*key[0][1])%26+(num[i+1]*key[1][1])%26)%26; 
+  } 
+char enc[len]; 
+for(i=0;i<len;i++) 
+ { 
+    enc[i]=e[i]+'a'; 
+ } 
+printf("Original string:%s\n",a); 
+printf("Encrypted string=%s\t\n",enc); 
+int del= (key[0][0]*key[1][1])-(key[0][1]*key[1][0]); 
+int del_inv; 
+for(i=0;i<26;i++) 
+ { 
+  if((del*i)%26==1) 
+   { 
+    del_inv=i; 
+    break; 
+   } 
+ } 
+int k_adj[2][2]={{key[1][1],0-key[1][0]}, {0-key[0][1],key[0][0]}}; 
+int k_inv[2][2]; 
+for(i=0;i<2;i++) 
+ { 
+  for(j=0;j<2;j++) 
+   { 
+    k_inv[i][j]=k_adj[i][j]*del_inv; 
+   } 
+ } 
+for(i=0;i<2;i++) 
+ { 
+  for(j=0;j<2;j++) 
+   { 
+    if(k_inv[i][j]<0) 
+     { 
+      k_inv[i][j]+=26; 
+     } 
+   } 
+ } 
+for(i=0;i<=len;i=i+2) 
+{ 
+    d[i]=((e[i]*k_inv[0][0])%26+(e[i+1]*k_inv[1][0])%26)%26; 
+    d[i+1]=((e[i]*k_inv[0][1])%26+(e[i+1]*k_inv[1][1])%26)%26; 
+} 
+char dec[len]; 
+for(i=0;i<len;i++) 
+{
+    dec[i]=d[i]+'a'; 
+} 
+printf("Decrypted string=%s\t\n", dec); 
+}
+
+
+
+DES 
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import java.util.Base64;
+
+public class Des {
+    public static void main(String[] args) throws Exception {
+        String originalText = "Hello World";
+        String keyString = "01234567"; 
+        DESKeySpec desKeySpec = new DESKeySpec(keyString.getBytes());
+        SecretKey secretKey = SecretKeyFactory.getInstance("DES").generateSecret(desKeySpec);
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedBytes = cipher.doFinal(originalText.getBytes());
+        String encryptedText = Base64.getEncoder().encodeToString(encryptedBytes);
+        System.out.println("Original Text: " + originalText);
+        System.out.println("Encrypted Text: " + encryptedText);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+        String decryptedText = new String(decryptedBytes);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+}
+
+
