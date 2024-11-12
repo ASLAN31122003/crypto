@@ -146,105 +146,73 @@ int main() {
 
 
 HILL CIPHER 
-#include <stdio.h>
-#include <string.h>
-
-void main() {
-    int i, j;
-    char s[100];
-    int key[2][2];
-    printf("Enter the key (2x2 matrix):\n");
-    for(i = 0; i < 2; i++) {
-        for(j = 0; j < 2; j++) {
-            scanf("%d", &key[i][j]);
-        }
-    }
-    
-    printf("Enter the string: ");
-    getchar(); // Consume the newline character left by previous input
-    fgets(s, sizeof(s), stdin);
-    int len = strlen(s);
-    char enc[100];
-    char dec[100];
-    char num[100];
-    char e[100];
-
-    // Convert input string to numeric values
-    for(i = 0; i < len; i++) {
-        if(s[i] >= 'a' && s[i] <= 'z') {
-            num[i] = s[i] - 'a';
-        } else if(s[i] >= 'A' && s[i] <= 'Z') {
-            num[i] = s[i] - 'A';
-        } else {
-            num[i] = s[i]; // Keep non-alphabetic characters unchanged
-        }
-    }
-
-    // Encryption
-    for(i = 0; i < len; i += 2) {
-        if(i + 1 < len) {
-            e[i] = ((num[i] * key[0][0]) % 26 + (num[i + 1] * key[0][1]) % 26) % 26;
-            e[i + 1] = ((num[i] * key[1][0]) % 26 + (num[i + 1] * key[1][1]) % 26) % 26;
-        } else {
-            e[i] = (num[i] * key[0][0]) % 26; // Handle odd length case
-        }
-    }
-
-    // Convert encrypted numeric values back to characters
-    for(i = 0; i < len; i++) {
-        enc[i] = e[i] + 'A'; // Convert to uppercase letters
-    }
-    enc[len] = '\0'; // Null-terminate the string
-
-    printf("Original string: %s", s);
-    printf("Encrypted string: %s\n", enc);
-
-    // Determinant calculation
-    int det = (key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26;
-    if(det < 0) det += 26; // Make determinant positive
-
-    // Finding modular inverse of determinant
-    int det_inv;
-    for(i = 0; i < 26; i++) {
-        if((det * i) % 26 == 1) {
-            det_inv = i;
-            break;
-        }
-    }
-
-    // Calculate adjoint matrix
-    int adj[2][2] = {
-        {key[1][1] * det_inv % 26, -key[0][1] * det_inv % 26},
-        {-key[1][0] * det_inv % 26, key[0][0] * det_inv % 26}
-    };
-
-    // Ensure positive values in adjoint matrix
-    for(i = 0; i < 2; i++) {
-        for(j = 0; j < 2; j++) {
-            if(adj[i][j] < 0) {
-                adj[i][j] += 26;
-            }
-        }
-    }
-
-    // Decryption
-    for(i = 0; i < len; i += 2) {
-        if(i + 1 < len) {
-            dec[i] = ((e[i] * adj[0][0]) % 26 + (e[i + 1] * adj[1][0]) % 26) % 26;
-            dec[i + 1] = ((e[i] * adj[0][1]) % 26 + (e[i + 1] * adj[1][1]) % 26) % 26;
-        } else {
-            dec[i] = (e[i] * adj[0][0]) % 26; // Handle odd length case
-        }
-    }
-
-    // Convert decrypted numeric values back to characters
-    for(i = 0; i < len; i++) {
-        dec[i] = dec[i] + 'a'; // Convert to lowercase letters
-    }
-    dec[len] = '\0'; // Null-terminate the string
-
-    printf("Decrypted string: %s\n", dec);
+#include<stdio.h> 
+void main() 
+{ 
+ int i,j; 
+ int key[2][2]={{2,3},{3,6}}; 
+ char a[]="attack"; 
+ int len=sizeof(a)-1; 
+ char e[len], num[len],d[len]; 
+ for(i=0;i<len;i++) 
+  { 
+      num[i]=a[i]-'a'; 
+  } 
+ for(i=0;i<=len;i=i+2) 
+  { 
+   e[i]=((num[i]*key[0][0])%26+(num[i+1]*key[1][0])%26)%26; 
+   e[i+1]=((num[i]*key[0][1])%26+(num[i+1]*key[1][1])%26)%26; 
+  } 
+char enc[len]; 
+for(i=0;i<len;i++) 
+ { 
+    enc[i]=e[i]+'a'; 
+ } 
+printf("Original string:%s\n",a); 
+printf("Encrypted string=%s\t\n",enc); 
+int del= (key[0][0]*key[1][1])-(key[0][1]*key[1][0]); 
+int del_inv; 
+for(i=0;i<26;i++) 
+ { 
+  if((del*i)%26==1) 
+   { 
+    del_inv=i; 
+    break; 
+   } 
+ } 
+int k_adj[2][2]={{key[1][1],0-key[1][0]}, {0-key[0][1],key[0][0]}}; 
+int k_inv[2][2]; 
+for(i=0;i<2;i++) 
+ { 
+  for(j=0;j<2;j++) 
+   { 
+    k_inv[i][j]=k_adj[i][j]*del_inv; 
+   } 
+ } 
+for(i=0;i<2;i++) 
+ { 
+  for(j=0;j<2;j++) 
+   { 
+    if(k_inv[i][j]<0) 
+     { 
+      k_inv[i][j]+=26; 
+     } 
+   } 
+ } 
+for(i=0;i<=len;i=i+2) 
+{ 
+    d[i]=((e[i]*k_inv[0][0])%26+(e[i+1]*k_inv[1][0])%26)%26; 
+    d[i+1]=((e[i]*k_inv[0][1])%26+(e[i+1]*k_inv[1][1])%26)%26; 
+} 
+char dec[len]; 
+for(i=0;i<len;i++) 
+{
+    dec[i]=d[i]+'a'; 
+} 
+printf("Decrypted string=%s\t\n", dec); 
 }
+
+
 
 
 DES 
