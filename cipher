@@ -14,40 +14,75 @@ void main()
 
 
 XOR A STRING WITH 127 
-#include<stdio.h> 
-void main() 
-{ 
- char input[]="hello world"; 
- char xorresult[sizeof(input)]; 
- char andresult[sizeof(input)]; 
- for(int i=0;i<sizeof(input)-1;i++) 
-  { 
-    andresult[i]=input[i]&127; 
-    xorresult[i]=input[i]^127; 
-  } 
- printf("Original string:%s\n",input); 
- printf("ANDed string:%s\n", andresult); 
- printf("XORed string:%s\n",xorresult); 
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char a[100];
+    char output[100]; 
+    int j = 0;
+    printf("Enter a string: ");
+    fgets(a, sizeof(a), stdin); 
+
+    for (int i = 0; a[i] != '\0'; i++) {
+        if (a[i] != ' ') {
+            // XOR operation with 127
+            char xorChar = a[i] ^ 127; 
+            // AND operation with 127
+            char andChar = a[i] & 127; 
+            // Store the results in the output array (you can choose how to store them)
+            output[j] = xorChar; // Store XOR result
+            j++; 
+            output[j] = andChar; // Store AND result
+            j++; 
+            printf("XOR Output: %c, ASCII value: %d\t\n", xorChar, (int)xorChar);
+            printf("AND Output: %c, ASCII value: %d\t\n", andChar, (int)andChar);
+        }
+    }
+    
+    output[j] = '\0'; // Null terminate the output string
+    printf("Processed string without spaces: %s\n", output);
+    
+    return 0;
 }
 
 
 
 
 CEASER CIPHER 
-#include<stdio.h> 
-void main() 
-{
-  char input[]="helloworld"; 
-  int i,len=sizeof(input)-1; 
-  char enc[len],dec[len]; 
-  for(i=0;i<len;i++) 
-   { 
-     enc[i]=(((input[i]-'a')+3)%26)+'a'; 
-     dec[i]=(((enc[i]-'a')-3)%26)+'a'; 
-   } 
-printf("Original string:%s\n", input); 
-printf("Encrypted string=%s\t\n",enc); 
-printf("Decrypted string=%s\t\n",dec); 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int main() {
+    char s[100];
+    printf("Enter a string: "); 
+    fgets(s, sizeof(s), stdin);
+    int len = strlen(s);
+    char e[len + 1];
+    char d[len + 1]; 
+    for (int i = 0; i < len; i++) {
+        if (s[i] >= 'A' && s[i] <= 'Z') {
+            e[i] = (s[i] - 'A' + 3) % 26 + 'A';
+        } else if (s[i] >= 'a' && s[i] <= 'z') {
+            e[i] = (s[i] - 'a' + 3) % 26 + 'a';
+        } else {
+            e[i] = s[i]; 
+        }
+    }
+    e[len]='\0';  
+     for (int i = 0; i < len; i++) {
+        if (e[i] >= 'A' && e[i] <= 'Z') {
+            d[i] = (e[i] - 'A' - 3 + 26) % 26 + 'A';
+        } else if (e[i] >= 'a' && e[i] <= 'z') {
+            d[i] = (e[i] - 'a' - 3 + 26) % 26 + 'a';
+        } else {
+            d[i] = e[i];
+        }
+    }
+    d[len] = '\0';
+    printf("Encrypted string: %s\n", e);
+    printf("Decrypted string: %s\n", d);
+    return 0;
 }
 
 
@@ -55,101 +90,161 @@ printf("Decrypted string=%s\t\n",dec);
 
 
 SUBSTITUTION CIPHER 
-#include<stdio.h> 
-void main() 
-{ 
- char input[]="hello"; 
- int i,j,len=sizeof(input)-1,index; 
- char t[]="qwertyuioplkjhgfdsazxcvbnm"; 
- char enc[len], dec[len]; 
- for(i=0;i<len;i++) 
-  { 
-   index=input[i]-'a'; 
-   enc[i]=t[index]; 
-  } 
- printf("Original string:%s\n", input); 
- printf("Encrypted string=%s\t\n",enc); 
- for(i=0;i<len;i++) 
-  { 
-   for(j=0;j<26;j++) 
-   {
-    if(enc[i]==t[j]) 
-    dec[i]=j+'a'; 
-   } 
-  } 
- printf("Decrypted string=%s\t\n",dec);
-} 
+#include <stdio.h>
+#include <string.h>
+
+void encrypt(char *input, char *output, char *key) {
+    for (int i = 0; input[i] != '\0'; i++) {
+        if (input[i] >= 'a' && input[i] <= 'z') {
+            // Encrypt lowercase letters
+            output[i] = key[input[i] - 'a'];
+        } else if (input[i] >= 'A' && input[i] <= 'Z') {
+            // Encrypt uppercase letters
+            output[i] = key[input[i] - 'A'] - 'a' + 'A'; // Keep the case
+        } else {
+            // Non-alphabetic characters remain unchanged
+            output[i] = input[i];
+        }
+    }
+    output[strlen(input)] = '\0'; // Null terminate the output string
+}
+
+void decrypt(char *input, char *output, char *key) {
+    for (int i = 0; input[i] != '\0'; i++) {
+        if (input[i] >= 'a' && input[i] <= 'z') {
+            // Decrypt lowercase letters
+            output[i] = 'a' + strchr(key, input[i]) - key;
+        } else if (input[i] >= 'A' && input[i] <= 'Z') {
+            // Decrypt uppercase letters
+            output[i] = 'A' + strchr(key, input[i] + 'a' - 'A') - key; // Keep the case
+        } else {
+            // Non-alphabetic characters remain unchanged
+            output[i] = input[i];
+        }
+    }
+    output[strlen(input)] = '\0'; // Null terminate the output string
+}
+
+int main() {
+    char key[26] = "qwertyuiopasdfghjklzxcvbnm"; // Substitution key
+    char input[100], encrypted[100], decrypted[100];
+
+    printf("Enter a message to encrypt: ");
+    fgets(input, sizeof(input), stdin); // Read input string
+    input[strcspn(input, "\n")] = 0; // Remove newline character
+
+    encrypt(input, encrypted, key);
+    printf("Encrypted message: %s\n", encrypted);
+
+    decrypt(encrypted, decrypted, key);
+    printf("Decrypted message: %s\n", decrypted);
+
+    return 0;
+}
 
 
 
 
 HILL CIPHER 
-#include<stdio.h> 
-void main() 
-{ 
- int i,j; 
- int key[2][2]={{2,3},{3,6}}; 
- char a[]="attack"; 
- int len=sizeof(a)-1; 
- char e[len], num[len],d[len]; 
- for(i=0;i<len;i++) 
-  { 
-      num[i]=a[i]-'a'; 
-  } 
- for(i=0;i<=len;i=i+2) 
-  { 
-   e[i]=((num[i]*key[0][0])%26+(num[i+1]*key[1][0])%26)%26; 
-   e[i+1]=((num[i]*key[0][1])%26+(num[i+1]*key[1][1])%26)%26; 
-  } 
-char enc[len]; 
-for(i=0;i<len;i++) 
- { 
-    enc[i]=e[i]+'a'; 
- } 
-printf("Original string:%s\n",a); 
-printf("Encrypted string=%s\t\n",enc); 
-int del= (key[0][0]*key[1][1])-(key[0][1]*key[1][0]); 
-int del_inv; 
-for(i=0;i<26;i++) 
- { 
-  if((del*i)%26==1) 
-   { 
-    del_inv=i; 
-    break; 
-   } 
- } 
-int k_adj[2][2]={{key[1][1],0-key[1][0]}, {0-key[0][1],key[0][0]}}; 
-int k_inv[2][2]; 
-for(i=0;i<2;i++) 
- { 
-  for(j=0;j<2;j++) 
-   { 
-    k_inv[i][j]=k_adj[i][j]*del_inv; 
-   } 
- } 
-for(i=0;i<2;i++) 
- { 
-  for(j=0;j<2;j++) 
-   { 
-    if(k_inv[i][j]<0) 
-     { 
-      k_inv[i][j]+=26; 
-     } 
-   } 
- } 
-for(i=0;i<=len;i=i+2) 
-{ 
-    d[i]=((e[i]*k_inv[0][0])%26+(e[i+1]*k_inv[1][0])%26)%26; 
-    d[i+1]=((e[i]*k_inv[0][1])%26+(e[i+1]*k_inv[1][1])%26)%26; 
-} 
-char dec[len]; 
-for(i=0;i<len;i++) 
-{
-    dec[i]=d[i]+'a'; 
-} 
-printf("Decrypted string=%s\t\n", dec); 
-}
+#include <stdio.h>
+#include <string.h>
 
+void main() {
+    int i, j;
+    char s[100];
+    int key[2][2];
+    printf("Enter the key (2x2 matrix):\n");
+    for(i = 0; i < 2; i++) {
+        for(j = 0; j < 2; j++) {
+            scanf("%d", &key[i][j]);
+        }
+    }
+    
+    printf("Enter the string: ");
+    getchar(); // Consume the newline character left by previous input
+    fgets(s, sizeof(s), stdin);
+    int len = strlen(s);
+    char enc[100];
+    char dec[100];
+    char num[100];
+    char e[100];
+
+    // Convert input string to numeric values
+    for(i = 0; i < len; i++) {
+        if(s[i] >= 'a' && s[i] <= 'z') {
+            num[i] = s[i] - 'a';
+        } else if(s[i] >= 'A' && s[i] <= 'Z') {
+            num[i] = s[i] - 'A';
+        } else {
+            num[i] = s[i]; // Keep non-alphabetic characters unchanged
+        }
+    }
+
+    // Encryption
+    for(i = 0; i < len; i += 2) {
+        if(i + 1 < len) {
+            e[i] = ((num[i] * key[0][0]) % 26 + (num[i + 1] * key[0][1]) % 26) % 26;
+            e[i + 1] = ((num[i] * key[1][0]) % 26 + (num[i + 1] * key[1][1]) % 26) % 26;
+        } else {
+            e[i] = (num[i] * key[0][0]) % 26; // Handle odd length case
+        }
+    }
+
+    // Convert encrypted numeric values back to characters
+    for(i = 0; i < len; i++) {
+        enc[i] = e[i] + 'A'; // Convert to uppercase letters
+    }
+    enc[len] = '\0'; // Null-terminate the string
+
+    printf("Original string: %s", s);
+    printf("Encrypted string: %s\n", enc);
+
+    // Determinant calculation
+    int det = (key[0][0] * key[1][1] - key[0][1] * key[1][0]) % 26;
+    if(det < 0) det += 26; // Make determinant positive
+
+    // Finding modular inverse of determinant
+    int det_inv;
+    for(i = 0; i < 26; i++) {
+        if((det * i) % 26 == 1) {
+            det_inv = i;
+            break;
+        }
+    }
+
+    // Calculate adjoint matrix
+    int adj[2][2] = {
+        {key[1][1] * det_inv % 26, -key[0][1] * det_inv % 26},
+        {-key[1][0] * det_inv % 26, key[0][0] * det_inv % 26}
+    };
+
+    // Ensure positive values in adjoint matrix
+    for(i = 0; i < 2; i++) {
+        for(j = 0; j < 2; j++) {
+            if(adj[i][j] < 0) {
+                adj[i][j] += 26;
+            }
+        }
+    }
+
+    // Decryption
+    for(i = 0; i < len; i += 2) {
+        if(i + 1 < len) {
+            dec[i] = ((e[i] * adj[0][0]) % 26 + (e[i + 1] * adj[1][0]) % 26) % 26;
+            dec[i + 1] = ((e[i] * adj[0][1]) % 26 + (e[i + 1] * adj[1][1]) % 26) % 26;
+        } else {
+            dec[i] = (e[i] * adj[0][0]) % 26; // Handle odd length case
+        }
+    }
+
+    // Convert decrypted numeric values back to characters
+    for(i = 0; i < len; i++) {
+        dec[i] = dec[i] + 'a'; // Convert to lowercase letters
+    }
+    dec[len] = '\0'; // Null-terminate the string
+
+    printf("Decrypted string: %s\n", dec);
+}
 
 
 DES 
@@ -178,4 +273,175 @@ public class Des {
     }
 }
 
+
+RSA
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+int powMod(int base,int exp,int mod){
+    int result=1;
+    base=base%mod;
+    while(exp>0){
+        if(exp%2==1){
+        result =(result*base)%mod;
+    }
+    exp=exp>>1;
+    base=(base*base)%mod;
+}
+return result;
+}
+void main()
+{
+    int p,q,m,n,e=1,phi,d=1,c,M;
+    printf("Enter prime number p:");
+    scanf("%d",&p);
+    printf("Enter the prime number q:");
+    scanf("%d",&q);
+    printf("Enter the message m");
+    scanf("%d",&m);
+    n=p*q;
+    phi=(p-1)*(q-1);
+    while((e*d%phi!=1)){
+        d++;
+        if(d>phi){
+            printf("Could not find a valid d \n");
+        }}
+        c=powMod(m,e,n);
+        M=powMod(c,d,n);
+        printf("Given input :\t%d \n",m);
+        printf("Encrypted text:\t%d\n",c);
+        printf("Decrypted text:\t%d\n",M);
+        }
+
+
+
+RC4
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Scanner;
+public class RC4
+{
+    public static void main(String[] args)throws Exception
+    {
+        Scanner scanner =new Scanner(System.in)_;
+        System.out.println("Enter the string to encrypt:");
+        String o= scanner.nextLine();
+        System.out.println("Enter the key:");
+        String k = scanner.nextLine();
+        byte[]kb=k.getBytes(StandardCharsets.UTF_8);
+        Key key=new SecretKeySpec(kb,"RC4");
+        Cipher c=Cipher.getInstance("RC4");
+        c.init(Cipher.ENCRYPT_MODE,key);
+        byte[]eb=c.doFinal(o.getBytes(StandardCharsets.UTF_8));
+        System.out.println("Original:"+o+"\nEncrypted:"+new String(eb,StandardCharsets.UTF_8));
+        c.init(Cipher.DECRYPT_MODE,key);
+        byte[]db=c.doFinal(eb);
+        System.out.println("Decrypted:"+new String(db,StandardCharsets.UTF_8));
+    }
+}
+
+
+blowfish
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+               public class Blowfish{
+                              public static byte[]encrypt (byte[] plaintext,byte[] key)throws Exception{
+                                             Cipher cipher = Cipher.getInstance("Blowfish");
+                                             SecretKeySpec secretKeySpec=new SecretKeySpec(key,"Blowfish");
+                                             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+                                             return cipher.doFinal(plaintext);
+                              }  
+                              public static byte[]decrypt(byte[] ciphertext,byte[] key)throws Exception{
+                                             Cipher cipher=Cipher.getInstance("Blowfish");
+                                             SecretKeySpec secretKeySpec= new SecretKeySpec(key,"Blowfish");
+                                             cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+                                             return cipher.doFinal(ciphertext);          
+                              }  
+                              public static void main(String[] args)throws Exception{
+                                             byte[]key="my_secret_key".getBytes();
+                                             Scanner sc = new Scanner(System.in);
+                                             System.out.println("Enter the plain text");
+                                             byte[] plaintext=sc.nextLine().getBytes();
+                                             byte[] ciphertext=encrypt(plaintext,key);
+                                             System.out.println("Ciphertext :"+new String(ciphertext));
+                                             byte[] decrypted=decrypt(ciphertext,key);
+                                             System.out.println("Decrypted Text:"+new String(decrypted));
+                                             sc.close();
+                              }
+
+                       }
+
+
+DF
+#include <stdio.h>
+#include <math.h>
+void main()
+{
+    int q,a;
+    printf("Enter the value of prime number:\n");
+    scanf("%d",&q);
+    printf("Enter the primitive root of a a prime number");
+    scanf("%d",&a);
+    int X,Y,M,N;
+    printf("Enter the value of private key of A :\n");
+    scanf("%d",&X);
+    printf("Enter the value of private Key of B:\n");
+    scanf("%d",&Y);
+    N=pow(a,X);
+    int C=N%q;
+    printf("Thwe public Key of A is :%d\n",C);
+    M=pow(a,Y);
+    int D=M%q;
+    printf("The public key of B is:%d\n",D);
+    int k1=pow(D,X);
+    int v=k1%q;
+    printf("The secret key generated by A is :%d\n",v);
+    int k2=pow(C,Y);
+    int w=k2%q;
+    printf("The secret key generated by B is :%d\n",w);
+}
+
+
+MD5
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class MD5Example {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Enter the text to hash:");
+        String input = scanner.nextLine();
+        
+        try {
+            // Create an MD5 MessageDigest instance
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            
+            // Calculate the hash
+            byte[] hashBytes = md.digest(input.getBytes());
+            
+            // Convert byte array to hexadecimal format
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            
+            // Output the MD5 hash
+            System.out.println("MD5 Hash: " + hexString.toString());
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("MD5 algorithm not found.");
+        } finally {
+            scanner.close();
+        }
+    }
+}
 
