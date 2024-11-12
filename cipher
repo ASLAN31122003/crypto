@@ -244,72 +244,143 @@ public class Des {
 
 RSA
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <math.h>
-int powMod(int base,int exp,int mod){
-    int result=1;
-    base=base%mod;
-    while(exp>0){
-        if(exp%2==1){
-        result =(result*base)%mod;
+
+int checkPrime(int n) {
+    if (n <= 1) return 0;
+    if (n <= 3) return 1;
+    if (n % 2 == 0 || n % 3 == 0) return 0;
+    for (int i = 5; i * i <= n; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) return 0;
     }
-    exp=exp>>1;
-    base=(base*base)%mod;
+    return 1;
 }
-return result;
+
+int findGCD(int n1, int n2) {
+    while (n2 != 0) {
+        int temp = n2;
+        n2 = n1 % n2;
+        n1 = temp;
+    }
+    return n1;
 }
-void main()
-{
-    int p,q,m,n,e=1,phi,d=1,c,M;
-    printf("Enter prime number p:");
-    scanf("%d",&p);
-    printf("Enter the prime number q:");
-    scanf("%d",&q);
-    printf("Enter the message m");
-    scanf("%d",&m);
-    n=p*q;
-    phi=(p-1)*(q-1);
-    while((e*d%phi!=1)){
-        d++;
-        if(d>phi){
-            printf("Could not find a valid d \n");
-        }}
-        c=powMod(m,e,n);
-        M=powMod(c,d,n);
-        printf("Given input :\t%d \n",m);
-        printf("Encrypted text:\t%d\n",c);
-        printf("Decrypted text:\t%d\n",M);
-        }
+
+// Function to calculate modular exponentiation
+long long powMod(long long a, long long b, long long n) {
+    long long x = 1, y = a;
+    while (b > 0) {
+        if (b % 2 == 1)
+            x = (x * y) % n;
+        y = (y * y) % n;
+        b /= 2;
+    }
+    return x % n;
+}
+
+// Extended Euclidean Algorithm to find modular inverse
+int modInverse(int e, int phin) {
+    int t = 0, newT = 1;
+    int r = phin, newR = e;
+    while (newR != 0) {
+        int quotient = r / newR;
+        int tempT = newT;
+        newT = t - quotient * newT;
+        t = tempT;
+        
+        int tempR = newR;
+        newR = r - quotient * newR;
+        r = tempR;
+    }
+    if (r > 1) return -1; // No modular inverse if r != 1
+    if (t < 0) t += phin;
+    return t;
+}
+
+int main() {
+    int p, q, n, phin;
+    int data, cipher, decrypt;
+
+    // Input two prime numbers
+    while (1) {
+        printf("Enter any two prime numbers: ");
+        scanf("%d %d", &p, &q);
+        if (!(checkPrime(p) && checkPrime(q)))
+            printf("Both numbers are not prime. Please enter prime numbers only...\n");
+        else
+            break;
+    }
+
+    n = p * q;
+    phin = (p - 1) * (q - 1);
+
+    // Select an encryption exponent e
+    int e;
+    for (e = 5; e < phin; e++) {
+        if (findGCD(phin, e) == 1)
+            break;
+    }
+
+    // Find modular inverse of e, which is d
+    int d = modInverse(e, phin);
+    if (d == -1) {
+        printf("Failed to find a valid decryption key.\n");
+        return -1;
+    }
+
+    printf("Value of e: %d\nValue of d: %d\n", e, d);
+    
+    // Input data to encrypt
+    printf("Enter some numerical data: ");
+    scanf("%d", &data);
+    
+    if (data >= n) {
+        printf("Data should be less than %d\n", n);
+        return -1;
+    }
+
+    // Encryption and Decryption
+    cipher = powMod(data, e, n);
+    printf("The cipher text is: %d\n", cipher);
+
+    decrypt = powMod(cipher, d, n);
+    printf("The decrypted text is: %d\n", decrypt);
+
+    return 0;
+}
 
 
 
 RC4
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
-import java.util.Scanner;
-public class RC4
-{
-    public static void main(String[] args)throws Exception
-    {
-        Scanner scanner =new Scanner(System.in)_;
-        System.out.println("Enter the string to encrypt:");
-        String o= scanner.nextLine();
-        System.out.println("Enter the key:");
-        String k = scanner.nextLine();
-        byte[]kb=k.getBytes(StandardCharsets.UTF_8);
-        Key key=new SecretKeySpec(kb,"RC4");
-        Cipher c=Cipher.getInstance("RC4");
-        c.init(Cipher.ENCRYPT_MODE,key);
-        byte[]eb=c.doFinal(o.getBytes(StandardCharsets.UTF_8));
-        System.out.println("Original:"+o+"\nEncrypted:"+new String(eb,StandardCharsets.UTF_8));
-        c.init(Cipher.DECRYPT_MODE,key);
-        byte[]db=c.doFinal(eb);
-        System.out.println("Decrypted:"+new String(db,StandardCharsets.UTF_8));
-    }
-}
+ import javax.crypto.Cipher;
+ import javax.crypto.spec.SecretKeySpec;
+ class Main{
+ public static byte[]rc4(byte[]key,byte[]data)throws Exception{
+ SecretKeySpec keySpec=new SecretKeySpec(key,"RC4");
+Cipher cipher=Cipher.getInstance("RC4");
+ cipher.init(Cipher.ENCRYPT_MODE,keySpec);
+ return cipher.doFinal(data);
+ }
+ public static byte[]rc4Decrypt(byte[]key,byte[]encryptedData)throws Exception{
+ SecretKeySpec keySpec=new SecretKeySpec(key,"RC4");
+ Cipher cipher=Cipher.getInstance("RC4");
+ cipher.init (Cipher.DECRYPT_MODE,keySpec);
+ return cipher.doFinal(encryptedData);
+ }
+ public static void main(String[] args){
+ try{
+ String key="secretpassword";
+ String data="dbddbbddb";
+ byte[]encryptedData=rc4(key.getBytes(),data.getBytes());
+ System.out.println("Encrypted Data: "+new String(encryptedData));
+ byte[]decryptedData=rc4Decrypt(key.getBytes(),encryptedData);
+ System.out.println("Decrypted Data: "+new String(decryptedData));
+ }
+ catch(Exception e){
+ e.printStackTrace();
+ }
+ }
+ }
 
 
 blowfish
@@ -413,3 +484,56 @@ public class MD5Example {
     }
 }
 
+
+
+Digital Signature
+ import java.security. KeyPair:
+ import java.security. KeyPairGenerator;
+ import java.security.PrivateKey;
+ import java.security.PublicKey;
+ import java.security.Signature:
+ import java.util.Scanner;
+ public class DigitalSignature {
+ public static void main(String[] args) {
+ try {
+ // Generate a key pair KeyPairGenerator keyPairGenerator = 
+KeyPairGenerator.getInstance("DSA"); keyPairGenerator.initialize(2048); KeyPair keyPair = 
+keyPairGenerator.generateKeyPair():
+ // Get the private and public keys PrivateKey privateKey = keyPair.getPrivate(); PublicKey 
+publicKey = keyPair.getPublic();
+ // Create a Signature object
+ Signature signature Signature.getInstance("SHA256withDSA");
+ ignature.initSign(privateKey);
+ // Get the message to sign from the user Scanner scanner = new Scanner(System.in); 
+System.out.print("Enter the message to sign: "); String message = scanner.nextLine():
+ // Update the signature object with the message signature.update(message.getBytes());
+ // Generate the digital signature
+ byte[] digitalSignature = signature.sign():
+ System.out.println("Digital Signature: " + bytesToHex(digitalSignature));
+ // Verify the signature
+ signature.init Verify(publicKey);
+ signature.update(message.getBytes());
+ boolean isVerified = signature.verify(digitalSignature);
+ if (isVerified) {
+ System.out.println("Signature verified: Message is authentic.");
+ } else {
+System.out.println("Signature verification failed: Message has been tampered
+ with!");
+ }
+ scanner.close();
+ } catch (Exception e) {
+ e.printStackTrace();
+ }
+ }
+ / Helper method to convert bytes to hexadecimal string /
+ private static String bytesToHex(byte[] bytes) {
+ StringBuilder hexString = new StringBuilder();
+ for (byte b: bytes) {
+ String hex = Integer.toHexString(0xff & b): if (hex.length() == 1) {
+ hexString.append('0');
+ }
+ hexString.append(hex); 
+}
+ return hexString.toString();
+ }
+ }
